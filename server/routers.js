@@ -10,6 +10,8 @@ const getListingById = require('./../database/queries/getListingById.js');
 const apiKeys = require('../env.js');
 const twilio = require('twilio')
 const twilioClient = new twilio(apiKeys.twilioSID, apiKeys.twilioAuthToken);
+const axios = require('axios');
+
 
 
 router.get('*/listings-bryce', (req, res) => getListingsByCity(req.query.city, (results) => {
@@ -22,26 +24,39 @@ router.post('*/bookings-james', (req, res) => {
   let dates = req.body.data;
   let listingId = req.body.listing;
   let userId = req.body.user;
+  let number = req.body.number;
+  console.log('NUMBER ON BACKEND', number);
   checkAvailability(listingId, dates, results => {
-    results ? saveReservation(listingId, userId, dates, results => res.send('success')) : res.send('failure');
+    results ? saveReservation(listingId, userId, dates, results => {
+      res.send('success');
+      axios.post('http://localhost:1234/sendsms', {
+        recipient: number,
+        proxy: { host: '127.0.0.1', port: 1234 }
+      }).then((response) => {
+        console.log(response);
+      })
+      .catch((err) => {
+        console.log('ERROR SENDING SMS THROUGH SMS PATH', err);
+      })
+    }) : res.send('failure');
   });
 });
 
 router.post('/sendsms', (req, res) => {
   const twilioNumber = apiKeys.twilioNumber;
-  console.log(req.body, req.query);
+  console.log('INSIDE REQ OF SMS PATH', req.body, req.query);
   let recipient = req.body.recipient;
   console.log(twilioClient);
   twilioClient.messages.create({
-    to: '+19084683240',
+    to: req.body.recipient,
     from: twilioNumber,
-    body: 'Your Airbnb booking has been confirmed from'
+    body: 'Your Airbnb booking has just been confirmed.'
   })
   .then((message) => {
     console.log('MESSAGE', message);
     console.log('ERROR CODE', message.errorCode);
     if (message.errorCode === null) {
-      res.send('Bruh');
+      res.send('Text sent!');
     }
   })
 });
