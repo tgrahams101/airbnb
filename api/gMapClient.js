@@ -1,4 +1,4 @@
-const API = require('./env.js');
+const API = require('../env.js');
 
 const googleMapsClient = require('@google/maps').createClient({
   key: API.GeocodeKey,

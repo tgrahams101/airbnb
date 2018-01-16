@@ -35,4 +35,4 @@ bower_components/
 .DS_Store
 
 #API Keys
-api/env.js
+*env.js

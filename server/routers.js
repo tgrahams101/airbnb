@@ -7,6 +7,9 @@ const checkAvailability = require('./../database/queries/checkAvailability.js');
 const saveReservation = require('./../database/queries/saveReservation.js');
 const googleAPI = require('./../api/gMapClient.js');
 const getListingById = require('./../database/queries/getListingById.js');
+const apiKeys = require('../env.js');
+const twilio = require('twilio')
+const twilioClient = new twilio(apiKeys.twilioSID, apiKeys.twilioAuthToken);
 
 
 router.get('*/listings-bryce', (req, res) => getListingsByCity(req.query.city, (results) => {
@@ -22,6 +25,25 @@ router.post('*/bookings-james', (req, res) => {
   checkAvailability(listingId, dates, results => {
     results ? saveReservation(listingId, userId, dates, results => res.send('success')) : res.send('failure');
   });
+});
+
+router.post('/sendsms', (req, res) => {
+  const twilioNumber = apiKeys.twilioNumber;
+  console.log(req.body, req.query);
+  let recipient = req.body.recipient;
+  console.log(twilioClient);
+  twilioClient.messages.create({
+    to: '+19084683240',
+    from: twilioNumber,
+    body: 'Your Airbnb booking has been confirmed from'
+  })
+  .then((message) => {
+    console.log('MESSAGE', message);
+    console.log('ERROR CODE', message.errorCode);
+    if (message.errorCode === null) {
+      res.send('Bruh');
+    }
+  })
 });
 
 
