@@ -22,21 +22,29 @@ export default class BookingWindow extends React.Component {
       endDate: undefined,
       maxGuests: Array(parseInt(this.props.maxGuests)).fill('1'),
       totalPrice: undefined,
-      resultMessage: undefined
+      resultMessage: undefined,
+      number: undefined
     };
     this.setStartDate = this.setStartDate.bind(this);
     this.setEndDate = this.setEndDate.bind(this);
     this.checkDates = this.checkDates.bind(this);
     this.onOpenModal = this.onOpenModal.bind(this);
     this.onCloseModal = this.onCloseModal.bind(this);
+    this.setNumber = this.setNumber.bind(this);
   }
 
   checkDates(dates) {
-    var app = this;
+    const app = this;
+    console.log('CHECKING NUMBER STATE', this.state.number);
+    var number = this.state.number;
+    if (number.length === 10) {
+      this.setState({number: "+1" + this.state.number});
+    }
     axios.post('/bookings-james', {
       data: dates,
       listing: app.state.listingId,
-      user: app.state.userId
+      user: app.state.userId,
+      number: app.state.number
     }).then(function(response) {
       if (response.data === 'failure') {
         app.notifyUnavailable();
@@ -49,7 +57,7 @@ export default class BookingWindow extends React.Component {
     });
   }
 
-  getDates() { 
+  getDates() {
     var startDateParts = this.state.startDate.toString().split('-');
     var endDateParts = this.state.endDate.toString().split('-');
 
@@ -59,8 +67,8 @@ export default class BookingWindow extends React.Component {
 
     var dates = [];
     var shortMonths = [4, 6, 9, 11];
-    
-    
+
+
     var i = dayStart;
     var max;
     if (dayStart > dayEnd) {
@@ -69,7 +77,7 @@ export default class BookingWindow extends React.Component {
     } else {
       max = dayEnd;
     }
-    
+
     while (month <= parseInt(endMonth)) {
       while (i <= max) {
         i < 10 ? i = `0${i}` : i = i;
@@ -97,7 +105,16 @@ export default class BookingWindow extends React.Component {
       endDate: event.target.value
     });
   }
-  
+
+  setNumber(event) {
+    const input = event.target.value;
+
+    console.log('NUMBER INPUT', input, typeof input);
+      this.setState({
+        number: `+1${event.target.value}`
+      })
+  }
+
   onOpenModal() {
     this.setState({
       modalOpen: true
@@ -147,27 +164,30 @@ export default class BookingWindow extends React.Component {
   render() {
     const {modalOpen} = this.state;
     return (
-    
+
       <div>
         <div className="containerBooking">
           <h1> ${this.props.price} <span style={{'font-size': 'medium', 'font-weight': '200'}}> per night </span></h1>
-          <h2> Rating: {this.state.rating.map(r => emojify(':star:'))}</h2>
+          <h2> Rating: {this.state.rating.map( r =>emojify(':star:'))}</h2>
           <hr/>
 
           <div className="bookingDatesBox">
-            <h2> Check-in: 
+            <h2> Check-in:
               <input type="date" id="startDate" onChange={this.setStartDate}/>
             </h2>
-            <h2> Check-out: 
+            <h2> Check-out:
               <input type="date" id="endDate" onChange={this.setEndDate}/>
             </h2>
-            <h2> Number of guests:  
+            <h2> Number of guests:
               <select>
                 {this.state.maxGuests.map((entry, index) =>
-                  <option> {index + 1} </option>
+                  <option key={index}> {index + 1} </option>
                 )}
               </select>
             </h2>
+            <h2> Working Mobile Number</h2><p>(Optional: for SMS confirmation of booking)</p>
+              <input type="text" onChange={this.setNumber} placeholder="4158202393(Example)"/>
+
           </div>
           <div>
             {this.state.totalPrice ? <h2> Total price: ${this.state.totalPrice}</h2> : null}
