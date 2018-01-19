@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import API from './../../../api/env.js';
+import API from '../../../env.js';
 import GoogleMapReact from 'google-map-react';
 import Marker from './Marker.jsx';
 
@@ -24,10 +24,10 @@ export default class GMap extends React.Component {
     return (
       <div className='google-map' style={this.state.style}>
         <GoogleMapReact
-          bootstrapURLKeys={ {key: this.state.apiKey} } 
+          bootstrapURLKeys={ {key: this.state.apiKey} }
           defaultCenter={ this.state.latLong }
           defaultZoom={ this.state.zoom }>
-          <Container 
+          <Container
             latLong={this.state.latLong}
           />
         </GoogleMapReact>

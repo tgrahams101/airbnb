@@ -15,7 +15,6 @@ const axios = require('axios');
 
 
 router.get('*/listings-bryce', (req, res) => getListingsByCity(req.query.city, (results) => {
-  console.log(results);
   res.json(results);
 }
 ));

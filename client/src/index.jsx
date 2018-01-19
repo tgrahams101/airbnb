@@ -30,7 +30,6 @@ import Navigation from './components/Navigation.jsx';
     })
     .then((response) => {
       this.setState({listings: response.data, city: city, searched: true})
-      this.forceUpdate();
       this.props.history.push('/listings/' + city)
       this.props.location.state = {city: city}
     })
