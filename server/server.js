@@ -8,6 +8,8 @@ const https = require('https');
 https.createServer(app);
 const PORT = process.env.PORT || 1234;
 
+app.listen(PORT, '0.0.0.0', () => console.log(`listening on ${PORT}`));
+
 app
   .use(express.static(path.join(__dirname, '/../client/dist/')))
   .use(bodyParser.json())
@@ -22,4 +24,3 @@ app
     next();
   })
   .use('/', routers)
-  .listen(PORT, '0.0.0.0', () => console.log(`listening on ${PORT}`))
